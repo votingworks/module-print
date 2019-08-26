@@ -32,12 +32,23 @@ body. Use the `Content-Type` header to choose the print format.
 
 **Example: Printing a PDF file**
 
+Responds with an ID for the print job.
+
 ```sh
 $ curl \
   --request POST \
   --header 'Content-Type: application/pdf' \
   --data-binary @path/to/file.pdf \
   http://localhost:${PORT}/jobs/new
+{"id":"43a55850-c84c-11e9-aff5-bf39225c9e96"}
+```
+
+#### `GET /status`
+
+Responds with a static value just so you can verify the server is running.
+
+```sh
+$ curl http://localhost:${PORT}/status
 ```
 
 ## Mock a Printer
