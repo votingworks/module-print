@@ -1,60 +1,25 @@
 import * as printerLib from 'printer'
 import uuid from 'uuid/v1'
+import fakeFile from '../../test/utils/fakeFile'
 import mockOf from '../../test/utils/mockOf'
 import RealPrintManager from './RealPrintManager'
-import { PrintJobState, File } from '.'
+import { PrintJobState } from '.'
 import fakePrinter from '../../test/utils/fakePrinter'
+import fakePrintJob from '../../test/utils/fakePrintJob'
 
-const makeIdMock = jest.fn<string, []>()
-const makeId = makeIdMock as typeof uuid
+jest.mock('uuid/v1')
+
+const uuidMock = mockOf(uuid)
 const printerMock = mockOf(printerLib)
 
 printerMock.getDefaultPrinterName.mockReturnValue('my-printer')
 
-function fakePrintJob({
-  id = 0,
-  name = `mock-print-job-${id}`,
-  printerName = 'my-printer',
-  user = 'printy',
-  format = 'AUTO',
-  priority = 0,
-  size = 0,
-  status = [],
-  completedTime = new Date(0),
-  creationTime = new Date(0),
-  processingTime = new Date(0),
-}: Partial<printerLib.PrintJob> = {}): printerLib.PrintJob {
-  return {
-    id,
-    name,
-    printerName,
-    user,
-    format,
-    priority,
-    size,
-    status,
-    completedTime,
-    creationTime,
-    processingTime,
-  }
-}
-
-function fakeFile({
-  contentType = 'application/octet-stream',
-  content = Buffer.from([]),
-}: Partial<File> = {}): File {
-  return {
-    contentType,
-    content,
-  }
-}
-
 test('prints by calling `printDirect` with the data provided', async () => {
   const printer = fakePrinter()
-  const manager = new RealPrintManager(printer.name, makeId)
+  const manager = new RealPrintManager(printer.name, uuid)
   const file = fakeFile()
 
-  makeIdMock.mockReturnValue('abc123')
+  uuidMock.mockReturnValue('abc123')
 
   printerMock.printDirect.mockImplementation(
     ({
@@ -84,9 +49,9 @@ test('prints by calling `printDirect` with the data provided', async () => {
 
 test('propagates a thrown error', async () => {
   const printer = fakePrinter()
-  const manager = new RealPrintManager(printer.name, makeId)
+  const manager = new RealPrintManager(printer.name, uuid)
 
-  makeIdMock.mockReturnValue('abc123')
+  uuidMock.mockReturnValue('abc123')
 
   printerMock.printDirect.mockImplementation(({ error }) => {
     error(new Error('nope!'))
