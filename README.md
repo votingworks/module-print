@@ -10,14 +10,34 @@ This web server component provides a web interface to connected printers.
 
 ## Run Tests
 
-```
-yarn test
+```sh
+$ yarn test
 ```
 
 ## Start the Development Server
 
+```sh
+# start on the default port (3005)
+$ yarn start
+# start on custom port
+$ PORT=8080 yarn start
 ```
-yarn start
+
+### Endpoints
+
+#### `POST /jobs/new`
+
+Create a new print job for the default printer with the content of the request
+body. Use the `Content-Type` header to choose the print format.
+
+**Example: Printing a PDF file**
+
+```sh
+$ curl \
+  --request POST \
+  --header 'Content-Type: application/pdf' \
+  --data-binary @path/to/file.pdf \
+  http://localhost:${PORT}/jobs/new
 ```
 
 ## Mock a Printer
