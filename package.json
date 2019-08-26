@@ -1,0 +1,64 @@
+{
+  "name": "module-print",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --report-unused-disable-directives --ext .ts src test",
+    "lint:fix": "yarn lint --fix",
+    "start": "ts-node src/index.ts",
+    "pretest": "yarn lint",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --ci --color --verbose",
+    "test:watch": "jest --watch"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss)": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix",
+      "git add"
+    ],
+    "package.json": [
+      "sort-package-json",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "printer": "^0.2.2",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.1",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.2",
+    "@types/supertest": "^2.0.8",
+    "@types/uuid": "^3.4.5",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint": "^6.2.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.15.2",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-prettier": "^3.1.0",
+    "express": "^4.17.1",
+    "husky": "^3.0.4",
+    "is-ci-cli": "^1.1.1",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.2.3",
+    "prettier": "^1.18.2",
+    "sort-package-json": "^1.22.1",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  }
+}

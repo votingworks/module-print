@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/node:lts
+    steps:
+      # TODO: Use a custom docker image instead.
+      # https://circleci.com/docs/2.0/custom-images/
+      - run:
+          name: Install CUPS
+          command: sudo apt-get install libcups2-dev
+      - checkout
+      - restore_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Setup Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key:
+            dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache
+      - run:
+          name: Run Tests and Coverage
+          command: yarn test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
