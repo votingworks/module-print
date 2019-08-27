@@ -1,3 +1,5 @@
+import { Reducer } from '../utils/reduceAsync'
+
 export interface PrintJob {
   readonly id: string
 }
@@ -23,10 +25,13 @@ export interface File {
   content: Buffer
 }
 
+export type Transform = Reducer<File>
+
 export interface PrintManager {
   print(file: File): Promise<PrintJob>
   cancel(printJob: PrintJob): Promise<PrintJobStatus>
   status(printJob: PrintJob): Promise<PrintJobStatus>
+  addTransform(transform: Transform): void
 }
 
 let printManager: PrintManager | undefined

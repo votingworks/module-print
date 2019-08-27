@@ -1,5 +1,5 @@
 import request from 'supertest'
-import mockOf, { MockOf } from '../../../test/utils/mockOf'
+import mockOf, { MockOf, mockNamespace } from '../../../test/utils/mockOf'
 import app from '../../app'
 import generateId from '../../utils/generateId'
 import { resetPrintManager, setPrintManager, PrintManager } from '../../manager'
@@ -7,11 +7,12 @@ import { resetPrintManager, setPrintManager, PrintManager } from '../../manager'
 const generateIdMock = mockOf(generateId)
 
 function mockPrintManager(): MockOf<PrintManager> {
-  return {
+  return mockNamespace({
     print: jest.fn(),
     cancel: jest.fn(),
     status: jest.fn(),
-  }
+    addTransform: jest.fn(),
+  })
 }
 
 jest.mock('../../utils/generateId')

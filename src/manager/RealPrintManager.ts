@@ -13,8 +13,10 @@ import {
   PrintJobStatus,
   PrintJobState,
   File,
+  Transform,
 } from './index'
 import assertDefined from '../utils/assertDefined'
+import reduceAsync from '../utils/reduceAsync'
 
 const printFormatByContentType = new Map<string, PrintFormat>([
   ['application/pdf', 'PDF'],
@@ -40,7 +42,13 @@ const printJobStateByRealPrintStatus = new Map<
 
 const DefaultPrintJobState = PrintJobState.Unknown
 
+type UUID = ReturnType<typeof uuid>
+
 export default class RealPrintManager implements PrintManager {
+  private transforms: Transform[] = []
+
+  private stateOverrides = new Map<UUID, PrintJobState>()
+
   constructor(
     private readonly printerName: string = assertDefined(
       getDefaultPrinterName()
@@ -48,23 +56,31 @@ export default class RealPrintManager implements PrintManager {
     private readonly makeId: typeof uuid = uuid
   ) {}
 
-  async print(file: File): Promise<PrintJob> {
+  async print(input: File): Promise<PrintJob> {
     const id = this.makeId()
 
-    printDirect({
-      data: file.content,
-      printer: this.printerName,
-      docname: id,
-      type: RealPrintManager.getPrintFormatForContentType(file.contentType),
-      success() {
-        /* nothing to do */
-      },
-      error(error) {
-        throw error
-      },
-    })
+    try {
+      this.stateOverrides.set(id, PrintJobState.Preparing)
 
-    return { id }
+      const output = await reduceAsync(input, this.transforms)
+
+      printDirect({
+        data: output.content,
+        printer: this.printerName,
+        docname: id,
+        type: RealPrintManager.getPrintFormatForContentType(output.contentType),
+        success() {
+          /* nothing to do */
+        },
+        error(error) {
+          throw error
+        },
+      })
+
+      return { id }
+    } finally {
+      this.stateOverrides.delete(id)
+    }
   }
 
   static getPrintFormatForContentType(contentType: string): PrintFormat {
@@ -87,9 +103,11 @@ export default class RealPrintManager implements PrintManager {
 
   async status(printJob: PrintJob): Promise<PrintJobStatus> {
     return {
-      state: RealPrintManager.getStateForRealPrintStatus(
-        this.getRealPrintJob(printJob.id).status
-      ),
+      state:
+        this.stateOverrides.get(printJob.id) ||
+        RealPrintManager.getStateForRealPrintStatus(
+          this.getRealPrintJob(printJob.id).status
+        ),
     }
   }
 
@@ -103,5 +121,9 @@ export default class RealPrintManager implements PrintManager {
     }
 
     return job
+  }
+
+  addTransform(transform: Transform): void {
+    this.transforms.push(transform)
   }
 }

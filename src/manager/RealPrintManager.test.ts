@@ -3,7 +3,7 @@ import uuid from 'uuid/v1'
 import fakeFile from '../../test/utils/fakeFile'
 import mockOf from '../../test/utils/mockOf'
 import RealPrintManager from './RealPrintManager'
-import { PrintJobState } from '.'
+import { PrintJobState, File } from '.'
 import fakePrinter from '../../test/utils/fakePrinter'
 import fakePrintJob from '../../test/utils/fakePrintJob'
 
@@ -12,7 +12,10 @@ jest.mock('uuid/v1')
 const uuidMock = mockOf(uuid)
 const printerMock = mockOf(printerLib)
 
-printerMock.getDefaultPrinterName.mockReturnValue('my-printer')
+beforeEach(() => {
+  printerMock.mockReset()
+  printerMock.getDefaultPrinterName.mockReturnValue('my-printer')
+})
 
 test('prints by calling `printDirect` with the data provided', async () => {
   const printer = fakePrinter()
@@ -132,4 +135,55 @@ test('throws when trying to cancel a job that does not exist', async () => {
   expect(manager.cancel({ id: 'abc123' })).rejects.toThrow(
     'unable to find job with id=abc123'
   )
+})
+
+test('passes `File` objects through any registered transformers', async () => {
+  const printer = fakePrinter()
+  const manager = new RealPrintManager(printer.name)
+
+  manager.addTransform(
+    // simple transform whose output is a file containing the length of the input as text
+    async (input: File): Promise<File> => ({
+      content: Buffer.from(`${input.content.length}`),
+      contentType: 'text/plain',
+    })
+  )
+
+  await manager.print({
+    content: Buffer.from('a,b,c'),
+    contentType: 'text/csv',
+  })
+
+  expect(printerMock.printDirect).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      data: Buffer.from('a,b,c'.length.toString()),
+    })
+  )
+})
+
+test('tracks state of print jobs during a running transformer as `Preparing`', async () => {
+  const printer = fakePrinter({
+    jobs: [fakePrintJob({ name: 'abc123', status: ['PRINTING'] })],
+  })
+  const manager = new RealPrintManager(printer.name)
+
+  printerMock.getPrinter.mockReturnValue(printer)
+
+  uuidMock.mockReturnValue('abc123')
+
+  manager.addTransform(
+    // simple transform whose output is a file containing the length of the input as text
+    async (input: File): Promise<File> => {
+      expect(await manager.status({ id: 'abc123' })).toEqual({
+        state: PrintJobState.Preparing,
+      })
+      return input
+    }
+  )
+
+  await manager.print(fakeFile())
+
+  expect(await manager.status({ id: 'abc123' })).toEqual({
+    state: PrintJobState.Printing,
+  })
 })
