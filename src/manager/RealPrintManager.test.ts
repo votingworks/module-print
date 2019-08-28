@@ -60,7 +60,7 @@ test('propagates a thrown error', async () => {
     error(new Error('nope!'))
   })
 
-  expect(manager.print(fakeFile())).rejects.toThrow('nope!')
+  await expect(manager.print(fakeFile())).rejects.toThrow('nope!')
 })
 
 test('can get the status with linked CUPS job id with our own id', async () => {
@@ -132,7 +132,7 @@ test('throws when trying to cancel a job that does not exist', async () => {
 
   printerMock.getPrinter.mockReturnValue(printer)
 
-  expect(manager.cancel({ id: 'abc123' })).rejects.toThrow(
+  await expect(manager.cancel({ id: 'abc123' })).rejects.toThrow(
     'unable to find job with id=abc123'
   )
 })
