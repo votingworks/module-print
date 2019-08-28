@@ -67,6 +67,7 @@ module.exports = {
       },
     ],
     'no-null/no-null': 'error', // TypeScript with strictNullChecks
+    'no-restricted-syntax': 'off',
     strict: 0,
   },
 }
