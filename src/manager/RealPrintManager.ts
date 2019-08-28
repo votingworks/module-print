@@ -123,7 +123,8 @@ export default class RealPrintManager implements PrintManager {
     return job
   }
 
-  addTransform(transform: Transform): void {
+  addTransform(transform: Transform): this {
     this.transforms.push(transform)
+    return this
   }
 }

@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express'
-import { getPrintManager } from '../../manager'
-import sendError from '../../utils/sendError'
+import { getPrintManager, File } from '../../../manager'
+import sendError from '../../../utils/sendError'
+import getURLPart from '../../../utils/getURLPart'
 
 const route: RequestHandler = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ const route: RequestHandler = async (req, res) => {
     }
 
     const contentType = req.get('content-type')
+    let file: File
 
     if (!contentType) {
       sendError(
@@ -22,7 +24,17 @@ const route: RequestHandler = async (req, res) => {
       return
     }
 
-    res.send(await getPrintManager().print({ contentType, content })).end()
+    if (contentType === 'text/html') {
+      file = {
+        contentType,
+        content,
+        origin: getURLPart(req.get('referer'), 'origin'),
+      }
+    } else {
+      file = { contentType: contentType as File['contentType'], content }
+    }
+
+    res.send(await getPrintManager().print(file)).end()
   } catch (error) {
     sendError(res, error.message)
   }
