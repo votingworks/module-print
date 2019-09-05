@@ -20,7 +20,7 @@ export interface PrintJobStatus {
   readonly state: PrintJobState
 }
 
-export type File = HtmlFile | PdfFile | CsvFile | TextFile | GenericFile
+export type File = HtmlFile | PdfFile | TextFile | GenericFile
 
 export interface HtmlFile {
   contentType: 'text/html'
@@ -30,11 +30,6 @@ export interface HtmlFile {
 
 export interface PdfFile {
   contentType: 'application/pdf'
-  content: Buffer
-}
-
-export interface CsvFile {
-  contentType: 'text/csv'
   content: Buffer
 }
 

@@ -151,7 +151,7 @@ test('passes `File` objects through any registered transformers', async () => {
 
   await manager.print({
     content: Buffer.from('a,b,c'),
-    contentType: 'text/csv',
+    contentType: 'text/plain',
   })
 
   expect(printerMock.printDirect).toHaveBeenLastCalledWith(
