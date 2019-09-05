@@ -1,3 +1,7 @@
+/* eslint-disable import/prefer-default-export */
+
+import { Reducer } from '../utils/reduceAsync'
+
 export interface PrintJob {
   readonly id: string
 }
@@ -18,32 +22,34 @@ export interface PrintJobStatus {
   readonly state: PrintJobState
 }
 
-export interface File {
-  contentType: string
+export type File = HtmlFile | PdfFile | TextFile | GenericFile
+
+export interface HtmlFile {
+  contentType: 'text/html'
+  content: Buffer
+  origin?: string
+}
+
+export interface PdfFile {
+  contentType: 'application/pdf'
   content: Buffer
 }
+
+export interface TextFile {
+  contentType: 'text/plain'
+  content: Buffer
+}
+
+export interface GenericFile {
+  contentType: 'application/octet-stream'
+  content: Buffer
+}
+
+export type Transform = Reducer<File>
 
 export interface PrintManager {
   print(file: File): Promise<PrintJob>
   cancel(printJob: PrintJob): Promise<PrintJobStatus>
   status(printJob: PrintJob): Promise<PrintJobStatus>
-}
-
-let printManager: PrintManager | undefined
-
-export function getPrintManager(): PrintManager {
-  if (!printManager) {
-    throw new Error(
-      'no print manager set; call `setPrintManager` to initialize'
-    )
-  }
-  return printManager
-}
-
-export function setPrintManager(value: PrintManager): void {
-  printManager = value
-}
-
-export function resetPrintManager(): void {
-  printManager = undefined
+  addTransform(transform: Transform): this
 }

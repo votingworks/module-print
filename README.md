@@ -25,30 +25,43 @@ $ PORT=8080 yarn start
 
 ### Endpoints
 
-#### `POST /jobs/new`
+#### `POST /printer/jobs/new`
 
 Create a new print job for the default printer with the content of the request
-body. Use the `Content-Type` header to choose the print format.
+body. Use the `Content-Type` header to choose the print format. Responds with an
+ID for the print job.
 
 **Example: Printing a PDF file**
-
-Responds with an ID for the print job.
 
 ```sh
 $ curl \
   --request POST \
   --header 'Content-Type: application/pdf' \
   --data-binary @path/to/file.pdf \
-  http://localhost:${PORT}/jobs/new
+  http://localhost:${PORT}/printer/jobs/new
 {"id":"43a55850-c84c-11e9-aff5-bf39225c9e96"}
 ```
 
-#### `GET /status`
+**Example: Printing an HTML file**
+
+> Note: Printing HTML requires Google Chrome to be installed.
+
+```sh
+$ curl \
+  --request POST \
+  --header 'Content-Type: text/html' \
+  --header 'Referer: http://localhost:3000/print' \
+  --data-binary @path/to/file.html \
+  http://localhost:${PORT}/printer/jobs/new
+{"id":"e96d9590-c851-11e9-a465-1ba11bc8aa67"}
+```
+
+#### `GET /printer/status`
 
 Responds with a static value just so you can verify the server is running.
 
 ```sh
-$ curl http://localhost:${PORT}/status
+$ curl http://localhost:${PORT}/printer/status
 ```
 
 ## Mock a Printer

@@ -1,3 +1,7 @@
-import app from './app'
+import makeApp from './app'
 
-app.listen(process.env.PORT || 3005)
+const port = process.env.PORT || 3005
+
+makeApp().listen(port, () =>
+  process.stdout.write(`module-print listening on port ${port}!\n`)
+)

@@ -1,26 +1,35 @@
 import express from 'express'
-import jobsNewRoute from './routes/jobs/new'
-import statusRoute from './routes/status'
-import { setPrintManager } from './manager'
+import makeJobsNewRoute from './routes/printer/jobs/new'
+import makeStatusRoute from './routes/printer/status'
 import RealPrintManager from './manager/RealPrintManager'
+import htmlToPdf from './transformers/htmlToPdf'
+import updateBase from './transformers/updateBase'
+import { PrintManager } from './manager'
 
-/* Printing */
+export function getDefaultPrintManager(): PrintManager {
+  // Order is important:
+  //   `updateBase` is HTML → HTML
+  //   `htmlToPdf` is HTML → PDF
+  // If you put `updateBase` after `htmlToPdf`, `updateBase` will ignore the PDF
+  // input. Be careful!
+  return new RealPrintManager().addTransform(updateBase).addTransform(htmlToPdf)
+}
 
-setPrintManager(new RealPrintManager())
+export default function makeApp(
+  printManager: PrintManager = getDefaultPrintManager()
+): ReturnType<typeof express> {
+  const app = express()
 
-/* Server */
+  // Always read request body into a Buffer.
+  app.use(
+    express.raw({
+      type: () => true,
+      limit: '10mb',
+    })
+  )
 
-const app = express()
+  app.get('/printer/status', makeStatusRoute())
+  app.post('/printer/jobs/new', makeJobsNewRoute(printManager))
 
-// Always read request body into a Buffer.
-app.use(
-  express.raw({
-    type: () => true,
-    limit: '10mb',
-  })
-)
-
-app.get('/status', statusRoute)
-app.post('/jobs/new', jobsNewRoute)
-
-export default app
+  return app
+}

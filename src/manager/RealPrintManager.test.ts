@@ -1,60 +1,27 @@
 import * as printerLib from 'printer'
 import uuid from 'uuid/v1'
+import fakeFile from '../../test/utils/fakeFile'
 import mockOf from '../../test/utils/mockOf'
 import RealPrintManager from './RealPrintManager'
 import { PrintJobState, File } from '.'
 import fakePrinter from '../../test/utils/fakePrinter'
+import fakePrintJob from '../../test/utils/fakePrintJob'
 
-const makeIdMock = jest.fn<string, []>()
-const makeId = makeIdMock as typeof uuid
+jest.mock('uuid/v1')
+
+const uuidMock = mockOf(uuid)
 const printerMock = mockOf(printerLib)
 
-printerMock.getDefaultPrinterName.mockReturnValue('my-printer')
-
-function fakePrintJob({
-  id = 0,
-  name = `mock-print-job-${id}`,
-  printerName = 'my-printer',
-  user = 'printy',
-  format = 'AUTO',
-  priority = 0,
-  size = 0,
-  status = [],
-  completedTime = new Date(0),
-  creationTime = new Date(0),
-  processingTime = new Date(0),
-}: Partial<printerLib.PrintJob> = {}): printerLib.PrintJob {
-  return {
-    id,
-    name,
-    printerName,
-    user,
-    format,
-    priority,
-    size,
-    status,
-    completedTime,
-    creationTime,
-    processingTime,
-  }
-}
-
-function fakeFile({
-  contentType = 'application/octet-stream',
-  content = Buffer.from([]),
-}: Partial<File> = {}): File {
-  return {
-    contentType,
-    content,
-  }
-}
+beforeEach(() => {
+  printerMock.getDefaultPrinterName.mockReturnValue('my-printer')
+})
 
 test('prints by calling `printDirect` with the data provided', async () => {
   const printer = fakePrinter()
-  const manager = new RealPrintManager(printer.name, makeId)
+  const manager = new RealPrintManager(printer.name, uuid)
   const file = fakeFile()
 
-  makeIdMock.mockReturnValue('abc123')
+  uuidMock.mockReturnValue('abc123')
 
   printerMock.printDirect.mockImplementation(
     ({
@@ -84,15 +51,15 @@ test('prints by calling `printDirect` with the data provided', async () => {
 
 test('propagates a thrown error', async () => {
   const printer = fakePrinter()
-  const manager = new RealPrintManager(printer.name, makeId)
+  const manager = new RealPrintManager(printer.name, uuid)
 
-  makeIdMock.mockReturnValue('abc123')
+  uuidMock.mockReturnValue('abc123')
 
   printerMock.printDirect.mockImplementation(({ error }) => {
     error(new Error('nope!'))
   })
 
-  expect(manager.print(fakeFile())).rejects.toThrow('nope!')
+  await expect(manager.print(fakeFile())).rejects.toThrow('nope!')
 })
 
 test('can get the status with linked CUPS job id with our own id', async () => {
@@ -164,7 +131,57 @@ test('throws when trying to cancel a job that does not exist', async () => {
 
   printerMock.getPrinter.mockReturnValue(printer)
 
-  expect(manager.cancel({ id: 'abc123' })).rejects.toThrow(
+  await expect(manager.cancel({ id: 'abc123' })).rejects.toThrow(
     'unable to find job with id=abc123'
   )
+})
+
+test('passes `File` objects through any registered transformers', async () => {
+  const printer = fakePrinter()
+  const manager = new RealPrintManager(printer.name)
+
+  manager.addTransform(
+    // simple transform whose output is a file containing the length of the input as text
+    async (input: File): Promise<File> => ({
+      content: Buffer.from(`${input.content.length}`),
+      contentType: 'text/plain',
+    })
+  )
+
+  await manager.print({
+    content: Buffer.from('a,b,c'),
+    contentType: 'text/plain',
+  })
+
+  expect(printerMock.printDirect).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      data: Buffer.from('a,b,c'.length.toString()),
+    })
+  )
+})
+
+test('tracks state of print jobs during a running transformer as `Preparing`', async () => {
+  const printer = fakePrinter({
+    jobs: [fakePrintJob({ name: 'abc123', status: ['PRINTING'] })],
+  })
+  const manager = new RealPrintManager(printer.name)
+
+  printerMock.getPrinter.mockReturnValue(printer)
+
+  uuidMock.mockReturnValue('abc123')
+
+  manager.addTransform(
+    async (input: File): Promise<File> => {
+      expect(await manager.status({ id: 'abc123' })).toEqual({
+        state: PrintJobState.Preparing,
+      })
+      return input
+    }
+  )
+
+  await manager.print(fakeFile())
+
+  expect(await manager.status({ id: 'abc123' })).toEqual({
+    state: PrintJobState.Printing,
+  })
 })
