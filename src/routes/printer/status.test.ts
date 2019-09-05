@@ -1,8 +1,10 @@
 import request from 'supertest'
-import app from '../../app'
+import makeApp from '../../app'
+import fakePrintManager from '../../../test/utils/fakePrintManager'
 
 test('responds with ok: true', async () => {
-  await request(app)
+  await request(makeApp(fakePrintManager()))
     .get('/printer/status')
-    .expect(200, { ok: true })
+    .expect({ ok: true })
+    .expect(200)
 })

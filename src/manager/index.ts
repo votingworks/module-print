@@ -1,3 +1,5 @@
+/* eslint-disable import/prefer-default-export */
+
 import { Reducer } from '../utils/reduceAsync'
 
 export interface PrintJob {
@@ -50,23 +52,4 @@ export interface PrintManager {
   cancel(printJob: PrintJob): Promise<PrintJobStatus>
   status(printJob: PrintJob): Promise<PrintJobStatus>
   addTransform(transform: Transform): this
-}
-
-let printManager: PrintManager | undefined
-
-export function getPrintManager(): PrintManager {
-  if (!printManager) {
-    throw new Error(
-      'no print manager set; call `setPrintManager` to initialize'
-    )
-  }
-  return printManager
-}
-
-export function setPrintManager(value: PrintManager): void {
-  printManager = value
-}
-
-export function resetPrintManager(): void {
-  printManager = undefined
 }

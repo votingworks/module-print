@@ -1,7 +1,10 @@
 import { RequestHandler } from 'express'
 
-const route: RequestHandler = (_req, res) => {
-  res.send({ ok: true }).end()
+/**
+ * Builds a request handler for a status endpoint.
+ */
+export default function makeRoute(): RequestHandler {
+  return (_req, res): void => {
+    res.send({ ok: true }).end()
+  }
 }
-
-export default route

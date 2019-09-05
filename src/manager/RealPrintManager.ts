@@ -44,6 +44,9 @@ const DefaultPrintJobState = PrintJobState.Unknown
 
 type UUID = ReturnType<typeof uuid>
 
+/**
+ * Provides real printing services for the application.
+ */
 export default class RealPrintManager implements PrintManager {
   private transforms: Transform[] = []
 
