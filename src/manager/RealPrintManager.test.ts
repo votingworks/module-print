@@ -172,7 +172,6 @@ test('tracks state of print jobs during a running transformer as `Preparing`', a
   uuidMock.mockReturnValue('abc123')
 
   manager.addTransform(
-    // simple transform whose output is a file containing the length of the input as text
     async (input: File): Promise<File> => {
       expect(await manager.status({ id: 'abc123' })).toEqual({
         state: PrintJobState.Preparing,
