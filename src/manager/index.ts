@@ -49,7 +49,7 @@ export interface PrintManager {
   print(file: File): Promise<PrintJob>
   cancel(printJob: PrintJob): Promise<PrintJobStatus>
   status(printJob: PrintJob): Promise<PrintJobStatus>
-  addTransform(transform: Transform): void
+  addTransform(transform: Transform): this
 }
 
 let printManager: PrintManager | undefined
