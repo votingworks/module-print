@@ -15,7 +15,7 @@ expect.extend({
   toEqualFile(actual: File, expected: File): jest.CustomMatcherResult {
     return {
       pass:
-        actual.contentType === expected.contentType &&
+        expected.contentType === actual.contentType &&
         expected.content.equals(actual.content),
       message: (): string =>
         this.utils.diff(
