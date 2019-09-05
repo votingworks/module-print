@@ -19,15 +19,6 @@ const writeFileMock = mockOf(writeFile)
 const unlinkMock = mockOf(unlink)
 const locateChromeMock = mockOf(locateChrome)
 
-beforeEach(() => {
-  execFileMock.mockReset()
-  mkdtempMock.mockReset()
-  readFileMock.mockReset()
-  writeFileMock.mockReset()
-  unlinkMock.mockReset()
-  locateChromeMock.mockReset()
-})
-
 test('converts text/html to application/pdf by calling Chrome with --print-to-pdf and the HTML in a temp file', async () => {
   locateChromeMock.mockResolvedValue(mockChromeLocation)
 

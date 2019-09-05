@@ -13,7 +13,6 @@ const uuidMock = mockOf(uuid)
 const printerMock = mockOf(printerLib)
 
 beforeEach(() => {
-  printerMock.mockReset()
   printerMock.getDefaultPrinterName.mockReturnValue('my-printer')
 })
 

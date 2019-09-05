@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   collectCoverage: true,
+  resetMocks: true,
   coverageThreshold: {
     global: {
       branches: 100,
