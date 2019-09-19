@@ -2,11 +2,13 @@
 
 This web server component provides a web interface to connected printers.
 
-## Install Requisite Software
+## Install Requisite Software & Configuration
 
+1. `make install` on Linux to install requisite CUPS package
 1. Install NodeJS LTS from https://nodejs.org/
 1. Install Yarn package manager from https://yarnpkg.com/
 1. `yarn install` to install packages
+1. Make sure you have designated a default printer on your system
 
 ## Run Tests
 
