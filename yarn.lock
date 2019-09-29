@@ -4158,10 +4158,9 @@ pretty-format@^24.9.0:
     ansi-styles "^3.2.0"
     react-is "^16.8.4"
 
-printer@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/printer/-/printer-0.2.2.tgz#830b8f5c97b97fd9b464d4f4e105d43337792296"
-  integrity sha1-gwuPXJe5f9m0ZNT04QXUMzd5IpY=
+"printer@https://github.com/votingworks/node-printer":
+  version "0.3.0"
+  resolved "https://github.com/votingworks/node-printer#ee6c2d872677cdd6208d129c3ce63995d1b937b6"
 
 process-nextick-args@~2.0.0:
   version "2.0.1"
