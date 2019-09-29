@@ -33,7 +33,7 @@
   "dependencies": {
     "chrome-location": "^1.2.1",
     "parse5": "^5.1.0",
-    "printer": "^0.2.2",
+    "printer": "https://github.com/votingworks/node-printer",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
