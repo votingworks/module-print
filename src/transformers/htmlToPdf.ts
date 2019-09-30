@@ -1,15 +1,12 @@
-import * as cp from 'child_process'
 import * as fs from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { promisify } from 'util'
-import { File, PdfFile } from '../manager'
-import locateChrome from '../utils/locateChrome'
+import RenderPDF from 'chrome-headless-render-pdf'
+import { File } from '../manager'
 
 const mkdtemp = promisify(fs.mkdtemp)
 const writeFile = promisify(fs.writeFile)
-const execFile = promisify(cp.execFile)
-const readFile = promisify(fs.readFile)
 const unlink = promisify(fs.unlink)
 
 /**
@@ -25,20 +22,13 @@ export default async function htmlToPdf(input: File): Promise<File> {
 
   await writeFile(inputPath, input.content)
 
-  await execFile(
-    await locateChrome(),
-    ['--headless', '--disable-gpu', '--print-to-pdf', inputPath],
-    { cwd: workingDirectory }
-  )
-
-  const outputPath = join(workingDirectory, 'output.pdf')
-  const file: PdfFile = {
-    content: await readFile(outputPath),
-    contentType: 'application/pdf',
-  }
+  const inputURL = `file://${inputPath}`
+  const content = await RenderPDF.generatePdfBuffer(inputURL)
 
   await unlink(inputPath)
-  await unlink(outputPath)
 
-  return file
+  return {
+    content,
+    contentType: 'application/pdf',
+  }
 }

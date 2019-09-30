@@ -17,8 +17,7 @@
     "target": "es5",
     "baseUrl": ".",
     "paths": {
-      "printer": ["types/printer.d.ts"],
-      "chrome-location": ["types/chrome-location.d.ts"]
+      "printer": ["types/printer.d.ts"]
     }
   },
   "include": ["src", "test", "types"]
