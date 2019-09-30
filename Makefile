@@ -4,7 +4,7 @@ FORCE:
 
 install:
 ifeq ($(PLATFORM),Linux)
-	apt install libcups2-dev
+	apt install -y libcups2-dev
 endif
 
 build: FORCE
