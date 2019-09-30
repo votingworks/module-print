@@ -31,7 +31,7 @@
     ]
   },
   "dependencies": {
-    "chrome-location": "^1.2.1",
+    "chrome-headless-render-pdf": "^1.8.2",
     "parse5": "^5.1.0",
     "printer": "https://github.com/votingworks/node-printer",
     "uuid": "^3.3.3"

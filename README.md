@@ -46,7 +46,7 @@ $ curl \
 
 **Example: Printing an HTML file**
 
-> Note: Printing HTML requires Google Chrome to be installed.
+> Note: Printing HTML requires Google Chrome / Chromium to be installed.
 
 ```sh
 $ curl \
