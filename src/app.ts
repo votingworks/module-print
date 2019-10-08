@@ -5,6 +5,7 @@ import RealPrintManager from './manager/RealPrintManager'
 import htmlToPdf from './transformers/htmlToPdf'
 import updateBase from './transformers/updateBase'
 import { PrintManager } from './manager'
+import pdfmakeToPdf from './transformers/pdfmakeToPdf'
 
 export function getDefaultPrintManager(): PrintManager {
   // Order is important:
@@ -12,7 +13,10 @@ export function getDefaultPrintManager(): PrintManager {
   //   `htmlToPdf` is HTML → PDF
   // If you put `updateBase` after `htmlToPdf`, `updateBase` will ignore the PDF
   // input. Be careful!
-  return new RealPrintManager().addTransform(updateBase).addTransform(htmlToPdf)
+  return new RealPrintManager()
+    .addTransform(updateBase)
+    .addTransform(htmlToPdf)
+    .addTransform(pdfmakeToPdf)
 }
 
 export default function makeApp(
