@@ -1,4 +1,5 @@
 type AnyFunction = (...args: any[]) => any // eslint-disable-line @typescript-eslint/no-explicit-any
+type AnyClass = new (...args: any[]) => any // eslint-disable-line @typescript-eslint/no-explicit-any
 
 export type MockNamespaceOf<T> = {
   [K in keyof T]: T[K] extends AnyFunction
@@ -11,6 +12,12 @@ export type MockFunctionOf<T extends AnyFunction> = jest.Mock<
   Parameters<T>
 >
 
+export type MockClassOf<T extends AnyClass> = jest.Mock<
+  InstanceType<T>,
+  ConstructorParameters<T>
+> &
+  MockNamespaceOf<T>
+
 export type MockOf<T> = T extends AnyFunction
   ? MockFunctionOf<T>
   : MockNamespaceOf<T>
@@ -20,6 +27,7 @@ export function mockNamespace<T extends object>(object: T): MockNamespaceOf<T> {
 }
 
 function mockOf<T extends AnyFunction>(fn: T): MockFunctionOf<T>
+function mockOf<T extends AnyClass>(fn: T): MockClassOf<T>
 function mockOf<T extends object>(object: T): MockNamespaceOf<T>
 function mockOf<T extends object>(object: T): MockOf<T> {
   const mock = (object as unknown) as MockOf<T>

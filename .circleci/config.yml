@@ -2,7 +2,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/node:lts
+      - image: circleci/node:12.10.0
     steps:
       # TODO: Use a custom docker image instead.
       # https://circleci.com/docs/2.0/custom-images/

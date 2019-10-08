@@ -22,7 +22,7 @@ export interface PrintJobStatus {
   readonly state: PrintJobState
 }
 
-export type File = HtmlFile | PdfFile | TextFile | GenericFile
+export type File = HtmlFile | PdfFile | PdfMakeFile | TextFile | GenericFile
 
 export interface HtmlFile {
   contentType: 'text/html'
@@ -32,6 +32,11 @@ export interface HtmlFile {
 
 export interface PdfFile {
   contentType: 'application/pdf'
+  content: Buffer
+}
+
+export interface PdfMakeFile {
+  contentType: 'x-application/pdfmake'
   content: Buffer
 }
 
